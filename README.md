@@ -14,6 +14,19 @@ Aplikasi Point of Sale (POS) sederhana namun profesional untuk toko penjualan ba
 
 ---
 
+## 📸 Screenshots
+Berikut adalah tampilan aplikasi:
+
+| Login Page | POS Dashboard |
+|------------|---------------|
+| ![Login](screenshots/login_view.png) | ![POS](screenshots/pos_view.png) |
+
+| Admin Dashboard |
+|-----------------|
+| ![Dashboard](screenshots/dashboard.png) |
+
+---
+
 ## 🛠️ Teknologi yang Digunakan
 Point penting untuk dijelaskan ke HRD/User:
 - **Bahasa**: PHP Native (>= 7.4). "Murni tanpa framework, membuktikan pemahaman logika dasar yang kuat."
