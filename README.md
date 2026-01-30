@@ -17,13 +17,13 @@ Aplikasi Point of Sale (POS) sederhana namun profesional untuk toko penjualan ba
 ## 📸 Screenshots
 Berikut adalah tampilan aplikasi:
 
-| Login Page | POS Dashboard |
-|------------|---------------|
-| ![Login](screenshots/login_view.png) | ![POS](screenshots/pos_view.png) |
+| Laporan (Dashboard) | Transaksi POS |
+|---------------------|---------------|
+| ![Laporan](Screenshot/Laporan.png) | ![POS](Screenshot/Transaksi%20POS.png) |
 
-| Admin Dashboard |
-|-----------------|
-| ![Dashboard](screenshots/dashboard.png) |
+| Master Barang | Master Kategori |
+|---------------|-----------------|
+| ![Barang](Screenshot/Master-Barang.png) | ![Kategori](Screenshot/Master-Kategori.png) |
 
 ---
 
