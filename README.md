@@ -88,14 +88,32 @@ Jika ditanya: *"Bagaimana alur Tambah Barang?"*
 
 ---
 
-## 🌐 Panduan Upload ke Hosting (Online)
+## 🌐 Panduan Hosting (Infinity Free / Shared Hosting)
 
 Web ini sudah **"Hosting Ready"**. Langkah update ke server asli:
 
-1.  **Database**: Buat database di hosting, import file `database/seed.sql`.
-2.  **Upload**: Upload semua file project ke `public_html`.
-3.  **Config**: Edit `config/config.php` di hosting. Sesuaikan User, Pass, dan Nama DB hosting.
-    *   *Catatan*: `BASE_URL` akan otomatis mendeteksi domain, tidak perlu diedit manual.
+1.  **Database**:
+    - Buka Control Panel Hosting -> MySQL Databases.
+    - Buat database baru (catat **DB Name**, **DB User**, **DB Password**, dan **DB Host**).
+    - Buka phpMyAdmin di hosting, import file `database/seed.sql`.
+
+2.  **Upload File**:
+    - Buka File Manager (atau pakai FileZilla).
+    - Upload **SEMUA** file project ke dalam folder `htdocs`.
+    - *Tips*: Saya sudah sediakan file `.htaccess` di luar folder `public` agar website langsung tampil saat domain dibuka (tanpa harus ketik `/public`).
+
+3.  **Config**:
+    - Edit file `config/config.php` di hosting.
+    - **PENTING**: Di Infinity Free, `DB_HOST` biasanya **BUKAN** `localhost`. Cek di detail akun MySQL Anda (contoh: `sql304.infinityfree.com`).
+    
+    ```php
+    define('DB_HOST', 'sql304.infinityfree.com'); // Sesuaikan dengan hosting
+    define('DB_USER', 'if0_3456789'); // Username hosting
+    define('DB_PASS', 'password_anda'); 
+    define('DB_NAME', 'if0_3456789_pos'); 
+    ```
+
+4.  **Selesai**: Buka domain Anda `http://namadomain.rf.gd`.
 
 ---
 *Created by Ilham Faishal*
