@@ -19,11 +19,11 @@ Berikut adalah tampilan aplikasi:
 
 | Laporan (Dashboard) | Transaksi POS |
 |---------------------|---------------|
-| ![Laporan](Screenshot/Laporan.png) | ![POS](Screenshot/Transaksi%20POS.png) |
+| ![Laporan](Screenshot/App-Laporan.png) | ![POS](Screenshot/App-Transaksi.png) |
 
 | Master Barang | Master Kategori |
 |---------------|-----------------|
-| ![Barang](Screenshot/Master-Barang.png) | ![Kategori](Screenshot/Master-Kategori.png) |
+| ![Barang](Screenshot/App-Barang.png) | ![Kategori](Screenshot/App-Kategori.png) |
 
 ---
 
