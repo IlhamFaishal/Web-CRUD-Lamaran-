@@ -1,119 +1,46 @@
-# POS Toko Besi & Kayu
+# POS Besi & Kayu
 
-Aplikasi Point of Sale (POS) sederhana namun profesional untuk toko penjualan barang besi dan kayu. Project ini dibangun dengan **PHP Native (Tanpa Framework)** dan **MySQL** dengan penerapan konsep **MVC (Model-View-Controller)** yang rapi, aman, dan mudah dijelaskan saat interview.
+Aplikasi Point of Sales (POS) berbasis web untuk toko Bangunan (Besi & Kayu) yang memiliki fitur manajemen stok, hutang piutang supplier, dan transaksi penjualan kasir.
 
----
+## Fitur Utama
+*   **Kasir / POS**: Transaksi penjualan cepat dengan perhitungan otomatis.
+*   **Manajemen Barang**: Kelola stok, harga, dan supplier barang.
+*   **Kartu Hutang**: Laporan detail hutang ke supplier (Saldo Awal + Pembelian - Pembayaran).
+*   **Laporan**: Rekapitulasi transaksi harian, bulanan, dan tahunan.
+*   **Export Excel**: Download laporan dan riwayat transaksi dalam format Excel yang rapi.
 
-## 🌟 Fitur Utama
-- **Login Multi-Role**: Sistem autentikasi aman untuk Admin.
-- **Master Data**: Kelola Barang dan Kategori dengan validasi lengkap.
-- **POS Modern**: Transaksi kasir dengan tampilan Grid responsif (Kotak-kotak), Keranjang Belanja, dan hitung kembalian otomatis.
-- **Laporan**: Grafik penjualan interaktif (Harian/Bulanan) dan tabel detail transaksi.
-- **Export Data**: Download laporan ke format Excel, CSV, dan PDF.
-- **Upload Gambar**: Setiap produk memiliki gambar yang bisa diupload dan diganti.
+## Tampilan Aplikasi (UI)
 
----
+Berikut adalah tampilan antarmuka dari aplikasi:
 
-## 📸 Screenshots
-Berikut adalah tampilan aplikasi:
+### 1. Transaksi Kasir (POS)
+Halaman utama untuk melakukan penjualan barang.
+![Transaksi POS](image-github/page-transaksi-POS.png)
 
-| Laporan (Dashboard) | Transaksi POS |
-|---------------------|---------------|
-| ![Laporan](Screenshot/App-Laporan.png) | ![POS](Screenshot/App-Transaksi.png) |
+### 2. Riwayat Transaksi
+Melihat history penjualan dan cetak struk/laporan.
+![Riwayat Transaksi](image-github/page-riwayat-transaksi.png)
 
-| Master Barang | Master Kategori |
-|---------------|-----------------|
-| ![Barang](Screenshot/App-Barang.png) | ![Kategori](Screenshot/App-Kategori.png) |
+### 3. Data Barang
+Manajemen stok inventory toko.
+![Data Barang](image-github/page-barang.png)
 
----
+### 4. Kategori Barang
+Pengelompokan jenis barang (Besi, Kayu, Paku, dll).
+![Kategori Barang](image-github/page-kategori.png)
 
-## 🛠️ Teknologi yang Digunakan
-Point penting untuk dijelaskan ke HRD/User:
-- **Bahasa**: PHP Native (>= 7.4). "Murni tanpa framework, membuktikan pemahaman logika dasar yang kuat."
-- **Database**: MySQL / MariaDB.
-- **Arsitektur**: MVC (Model - View - Controller). "Memisahkan Logika, Data, dan Tampilan agar codingan rapi."
-- **Keamanan**: PDO Prepared Statements (Anti SQL Injection) & Password Hashing.
-- **Frontend**: HTML5, CSS3 Custom (Responsive), Javascript Vanilla, Chart.js.
+### 5. Data Supplier
+Manajemen data pemasok barang.
+![Data Supplier](image-github/page-supplier.png)
 
----
+### 6. Laporan & Kartu Hutang
+Monitoring hutang usaha dan rekap pembelian.
+![Laporan Hutang](image-github/page-laporan.png)
 
-## 📂 Bedah Struktur Folder (Panduan Interview)
-Peta lokasi file untuk presentasi teknis:
-
-### 1. Pintu Masuk (Entry Point)
-*   **Lokasi**: `public/index.php`
-*   **Fungsi**: Router / Pengatur Lalu Lintas. Semua request masuk lewat sini dulu.
-
-### 2. Otak Aplikasi (Controllers)
-*   **Lokasi**: `controllers/`
-*   **Penjelasan**: Tempat logika bisnis berjalan.
-    *   `BarangController.php`: validasi input, upload gambar.
-    *   `PosController.php`: hitung total belanja, simpan transaksi.
-
-### 3. Dapur Data (Models)
-*   **Lokasi**: `models/`
-*   **Penjelasan**: File yang boleh bicara langsung dengan Database (SQL).
-    *   `BarangModel.php`: CRUD ke tabel barang.
-
-### 4. Tampilan (Views)
-*   **Lokasi**: `views/`
-*   **Penjelasan**: File HTML murni untuk user interface.
-    *   `views/pos/index.php`: Halaman Kasir.
-    *   `views/barang/index.php`: Halaman Admin Barang.
+## Instalasi
+1.  Import database `database/database.sql` ke MySQL.
+2.  Atur koneksi database di `config/Database.php` (jika ada) atau sesuaikan environment.
+3.  Jalankan di local server (XAMPP/Laragon).
 
 ---
-
-## 💡 Contoh Penjelasan Logika (Studi Kasus)
-Jika ditanya: *"Bagaimana alur Tambah Barang?"*
-
-1.  **User Klik Simpan** di Modal -> Data dikirim ke `public/index.php`.
-2.  **Router** mengarahkan ke `BarangController.php` fungsi `store()`.
-3.  **Controller** melakukan validasi & upload gambar.
-4.  **Model** (`BarangModel.php`) menyimpan data ke Database (`INSERT INTO...`).
-5.  **Selesai**, user dikembalikan ke halaman utama.
-
----
-
-## 🚀 Instalasi (Localhost)
-
-1.  **Copy Folder**: Taruh folder `pos-besi-kayu` di `C:\xampp\htdocs\`.
-2.  **Database**:
-    - Buka phpMyAdmin, buat database `pos_besi_kayu`.
-    - Import file `database/seed.sql` (Otomatis membuat tabel & data dummy).
-3.  **Config**:
-    - Cek `config/config.php`. Pastikan user/password database benar.
-4.  **Jalankan**:
-    - Buka browser: `http://localhost/pos-besi-kayu/public`
-    - **Login**: Username `admin`, Password `admin123`.
-
----
-
-## 🌐 Panduan Hosting (Infinity Free / Shared Hosting)
-
-Web ini sudah **"Hosting Ready"**. Langkah update ke server asli:
-
-1.  **Database**:
-    - Buka Control Panel Hosting -> MySQL Databases.
-    - Buat database baru (catat **DB Name**, **DB User**, **DB Password**, dan **DB Host**).
-    - Buka phpMyAdmin di hosting, import file `database/seed.sql`.
-
-2.  **Upload File**:
-    - Buka File Manager (atau pakai FileZilla).
-    - Upload **SEMUA** file project ke dalam folder `htdocs`.
-    - *Tips*: Saya sudah sediakan file `.htaccess` di luar folder `public` agar website langsung tampil saat domain dibuka (tanpa harus ketik `/public`).
-
-3.  **Config**:
-    - Edit file `config/config.php` di hosting.
-    - **PENTING**: Di Infinity Free, `DB_HOST` biasanya **BUKAN** `localhost`. Cek di detail akun MySQL Anda (contoh: `sql304.infinityfree.com`).
-    
-    ```php
-    define('DB_HOST', 'sql304.infinityfree.com'); // Sesuaikan dengan hosting
-    define('DB_USER', 'if0_3456789'); // Username hosting
-    define('DB_PASS', 'password_anda'); 
-    define('DB_NAME', 'if0_3456789_pos'); 
-    ```
-
-4.  **Selesai**: Buka domain Anda `http://namadomain.rf.gd`.
-
----
-*Created by Ilham Faishal*
+*Created for Digital Market Project.*
