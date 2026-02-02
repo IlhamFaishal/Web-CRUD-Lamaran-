@@ -89,4 +89,50 @@ class TransaksiModel {
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    public function getAll($startDate = null, $endDate = null) {
+        $sql = "SELECT * FROM transaksi";
+        $params = [];
+
+        if ($startDate && $endDate) {
+            $sql .= " WHERE DATE(tanggal) BETWEEN :start AND :end";
+            $params[':start'] = $startDate;
+            $params[':end'] = $endDate;
+        }
+
+        $sql .= " ORDER BY tanggal DESC";
+        
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+    
+    public function getSalesByCategory($startDate = null, $endDate = null) {
+        $sql = "SELECT k.nama_kategori, SUM(d.subtotal) as total_sales
+                FROM transaksi_detail d
+                JOIN barang b ON d.barang_id = b.id_barang
+                JOIN kategori k ON b.kategori_id = k.id_kategori
+                JOIN transaksi t ON d.transaksi_id = t.id_transaksi";
+        
+        $params = [];
+        
+        if ($startDate && $endDate) {
+            $sql .= " WHERE DATE(t.tanggal) BETWEEN :start AND :end";
+            $params[':start'] = $startDate;
+            $params[':end'] = $endDate;
+        }
+        
+        $sql .= " GROUP BY k.id_kategori, k.nama_kategori
+                  ORDER BY total_sales DESC";
+        
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue($key, $val);
+        }
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

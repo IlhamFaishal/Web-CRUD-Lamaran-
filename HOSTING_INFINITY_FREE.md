@@ -48,10 +48,10 @@ website.zip
 3. Isi nama database (contoh: `db_pos_besi_kayu`)
 4. Klik **Create**
 5. **CATAT** informasi berikut (akan muncul di halaman):
-   - `DB_HOST` (misal: `sql308.infinityfree.com`)
-   - `DB_USER` (misal: `if0_41029338`)
-   - `DB_PASS` (password yang Anda set)
-   - `DB_NAME` (misal: `if0_41029338_db_pos_besi_kayu`)
+   - `DB_HOST` (misal: `sql100.infinityfree.com`)
+   - `DB_USER` (misal: `if0_41029624`)
+   - `DB_PASS` (misal: `HAMHAM45`)
+   - `DB_NAME` (misal: `if0_41029624_db_pos_besi_kayu`)
 
 ### Langkah 2: Import Database
 1. Di halaman **MySQL Databases**, klik **Manage** atau **phpMyAdmin**

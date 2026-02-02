@@ -65,6 +65,7 @@ function isPost() {
 }
 
 function formatRupiah($angka) {
+    if (abs($angka) < 1) $angka = 0; 
     return "Rp " . number_format($angka, 0, ',', '.');
 }
 

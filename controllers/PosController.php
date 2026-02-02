@@ -3,17 +3,20 @@
 require_once __DIR__ . '/../models/BarangModel.php';
 require_once __DIR__ . '/../models/TransaksiModel.php';
 require_once __DIR__ . '/../models/KategoriModel.php';
+require_once __DIR__ . '/../models/PembayaranModel.php';
 
 class PosController {
     private $barangModel;
     private $transaksiModel;
     private $kategoriModel;
+    private $pembayaranModel;
 
     public function __construct() {
         requireLogin();
         $this->barangModel = new BarangModel();
         $this->transaksiModel = new TransaksiModel();
         $this->kategoriModel = new KategoriModel();
+        $this->pembayaranModel = new PembayaranModel();
         
         if (!isset($_SESSION['cart'])) {
             $_SESSION['cart'] = [];
@@ -69,6 +72,7 @@ class PosController {
                 'code' => $barang['kode_barang'],
                 'name' => $barang['nama_barang'],
                 'price' => $barang['harga_jual'],
+                'supplier_id' => $barang['supplier_id'], // Track supplier
                 'qty' => 1,
                 'subtotal' => $barang['harga_jual']
             ];
@@ -142,6 +146,35 @@ class PosController {
 
         try {
             $transaksiId = $this->transaksiModel->create($data);
+            
+            // Group cart items by supplier and calculate payment per supplier
+            $supplierPayments = [];
+            foreach ($_SESSION['cart'] as $item) {
+                $supplierId = $item['supplier_id'];
+                
+                // Skip items without supplier
+                if (!$supplierId) continue;
+                
+                if (!isset($supplierPayments[$supplierId])) {
+                    $supplierPayments[$supplierId] = 0;
+                }
+                
+                // Add this item's subtotal to supplier's payment
+                $supplierPayments[$supplierId] += $item['subtotal'];
+            }
+            
+            // Record payment for each supplier
+            foreach ($supplierPayments as $supplierId => $amount) {
+                $paymentData = [
+                    'supplier_id' => $supplierId,
+                    'tanggal' => date('Y-m-d'),
+                    'jumlah_bayar' => $amount,
+                    'keterangan' => 'Pembayaran otomatis dari transaksi POS #' . $noTransaksi
+                ];
+                
+                $this->pembayaranModel->create($paymentData);
+            }
+            
             $_SESSION['cart'] = []; // Clear cart
             
             // Redirect to receipt
@@ -164,5 +197,65 @@ class PosController {
         $details = $this->transaksiModel->getDetails($id);
         
         require_once __DIR__ . '/../views/pos/struk.php';
+    }
+
+    public function history() {
+        $filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
+        $startDate = null;
+        $endDate = null;
+
+        if ($filter == 'today') {
+            $startDate = date('Y-m-d');
+            $endDate = date('Y-m-d');
+        } elseif ($filter == '7days') {
+            $startDate = date('Y-m-d', strtotime('-7 days'));
+            $endDate = date('Y-m-d');
+        } elseif ($filter == '30days') {
+            $startDate = date('Y-m-d', strtotime('-30 days'));
+            $endDate = date('Y-m-d');
+        }
+
+        $history = $this->transaksiModel->getAll($startDate, $endDate);
+        
+        // Calculate statistics
+        $totalSales = 0;
+        $totalTransactions = count($history);
+        $dailySales = [];
+        $categorySales = [];
+        
+        foreach ($history as $row) {
+            $totalSales += $row['total_harga'];
+            
+            // Group by date for daily sales chart
+            $date = date('Y-m-d', strtotime($row['tanggal']));
+            if (!isset($dailySales[$date])) {
+                $dailySales[$date] = 0;
+            }
+            $dailySales[$date] += $row['total_harga'];
+        }
+        
+        // Get category sales data
+        $categorySales = $this->transaksiModel->getSalesByCategory($startDate, $endDate);
+        
+        $averageSale = $totalTransactions > 0 ? $totalSales / $totalTransactions : 0;
+        
+        // Prepare chart data
+        $chartLabels = array_keys($dailySales);
+        $chartData = array_values($dailySales);
+        
+        view('pos/history', [
+            'history' => $history,
+            'currentFilter' => $filter,
+            'stats' => [
+                'total_sales' => $totalSales,
+                'total_transactions' => $totalTransactions,
+                'average_sale' => $averageSale
+            ],
+            'chartData' => [
+                'labels' => $chartLabels,
+                'data' => $chartData
+            ],
+            'categorySales' => $categorySales
+        ]);
     }
 }

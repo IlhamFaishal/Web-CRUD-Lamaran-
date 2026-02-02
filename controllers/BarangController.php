@@ -1,27 +1,47 @@
 <?php
 
+// ... imports
 require_once __DIR__ . '/../models/BarangModel.php';
 require_once __DIR__ . '/../models/KategoriModel.php';
+require_once __DIR__ . '/../models/KodeSupplier.php';
+require_once __DIR__ . '/../models/MasterKodeBarang.php';
 
 class BarangController {
     private $model;
     private $kategoriModel;
+    private $supplierModel;
+    private $masterKodeModel;
 
     public function __construct() {
         requireLogin();
         $this->model = new BarangModel();
         $this->kategoriModel = new KategoriModel();
+        $this->supplierModel = new KodeSupplier();
+        $this->masterKodeModel = new MasterKodeBarang();
     }
 
     public function index() {
         $barang = $this->model->getAll();
         $kategori = $this->kategoriModel->getAll();
-        view('barang/index', ['barang' => $barang, 'kategori' => $kategori]);
+        $suppliers = $this->supplierModel->getAll(); // Add this
+        $masterKode = $this->masterKodeModel->getAll(); // Add this
+        view('barang/index', [
+            'barang' => $barang, 
+            'kategori' => $kategori,
+            'suppliers' => $suppliers, // Add this
+            'masterKode' => $masterKode // Add this
+        ]);
     }
 
     public function create() {
         $kategori = $this->kategoriModel->getAll();
-        view('barang/create', ['kategori' => $kategori]);
+        $suppliers = $this->supplierModel->getAll();
+        $masterKode = $this->masterKodeModel->getAll();
+        view('barang/create', [
+            'kategori' => $kategori, 
+            'suppliers' => $suppliers,
+            'masterKode' => $masterKode
+        ]);
     }
 
     private function uploadImage($file) {
@@ -31,15 +51,20 @@ class BarangController {
         if ($file['error'] !== UPLOAD_ERR_OK) return null;
 
         // Check file type
-        $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         if (!in_array($ext, $allowed)) return false;
 
-        // Check size (max 2MB)
-        if ($file['size'] > 2 * 1024 * 1024) return false;
+        // Check size (max 500KB)
+        if ($file['size'] > 500 * 1024) return false;
 
         // Generate filename
         $filename = uniqid() . '.' . $ext;
+        
+        // Create directory if not exists
+        if (!file_exists($targetDir)) {
+            mkdir($targetDir, 0777, true);
+        }
         
         if (move_uploaded_file($file['tmp_name'], $targetDir . $filename)) {
             return $filename;
@@ -52,13 +77,21 @@ class BarangController {
         if (!isPost()) redirect('barang');
         
         $data = $_POST;
+        
+        // KODE BARANG = KODE PREFIX (Sesuai Request)
+        if (isset($data['kode_prefix'])) {
+            $data['kode_barang'] = $data['kode_prefix'];
+        }
+
         $data = sanitize($data);
 
         // Validation
-        $errors = validateRequired($data, ['kode_barang', 'nama_barang', 'kategori_id', 'satuan', 'harga_jual', 'stok']);
+        $errors = validateRequired($data, ['kode_prefix', 'nama_barang', 'kategori_id', 'satuan', 'harga_jual', 'stok']);
         
-        if ($this->model->findByKode($data['kode_barang'])) {
-            $errors[] = "Kode Barang sudah ada.";
+        // Cek Duplikasi (Kode + Supplier harus Unik)
+        $existing = $this->model->findByKodeAndSupplier($data['kode_barang'], $data['supplier_id'] ?? null);
+        if ($existing) {
+             $errors[] = "Kode Barang '{$data['kode_barang']}' sudah ada untuk Supplier ini.";
         }
 
         if ($data['harga_jual'] < 0) $errors[] = "Harga Jual tidak boleh negatif.";
@@ -69,7 +102,7 @@ class BarangController {
         if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === UPLOAD_ERR_OK) {
             $upload = $this->uploadImage($_FILES['gambar']);
             if ($upload === false) {
-                $errors[] = "Gagal upload gambar. Pastikan format JPG/PNG dan ukuran < 2MB.";
+                $errors[] = "Gagal upload gambar. Pastikan format foto valid dan ukuran < 500KB.";
             } else {
                 $gambar = $upload;
             }
@@ -77,6 +110,8 @@ class BarangController {
 
         if (!empty($errors)) {
             setFlashMessage('error', implode('<br>', $errors));
+            // Keep input values
+            $_SESSION['old'] = $data;
             redirect('barang/create');
         }
 
@@ -84,6 +119,7 @@ class BarangController {
 
         if ($this->model->create($data)) {
             setFlashMessage('success', 'Barang berhasil ditambahkan.');
+            unset($_SESSION['old']);
             redirect('barang');
         } else {
             setFlashMessage('error', 'Gagal menambahkan barang.');
@@ -94,24 +130,40 @@ class BarangController {
     public function edit($id) {
         $barang = $this->model->findById($id);
         $kategori = $this->kategoriModel->getAll();
+        $suppliers = $this->supplierModel->getAll();
+        $masterKode = $this->masterKodeModel->getAll();
         
         if (!$barang) redirect('barang');
         
-        view('barang/edit', ['barang' => $barang, 'kategori' => $kategori]);
+        view('barang/edit', [
+            'barang' => $barang, 
+            'kategori' => $kategori,
+            'suppliers' => $suppliers,
+            'masterKode' => $masterKode
+        ]);
     }
 
     public function update($id) {
         if (!isPost()) redirect('barang');
         
         $data = $_POST;
+        
+        $data = $_POST;
+        
+        // KODE BARANG = KODE PREFIX (Sesuai Request Update)
+        if (isset($data['kode_prefix'])) {
+            $data['kode_barang'] = $data['kode_prefix'];
+        }
+
         $data = sanitize($data);
 
-        $errors = validateRequired($data, ['kode_barang', 'nama_barang', 'kategori_id', 'satuan', 'harga_jual', 'stok']);
+        $errors = validateRequired($data, ['kode_prefix', 'nama_barang', 'kategori_id', 'satuan', 'harga_jual', 'stok']);
 
         // Check Unique Code
-        $existing = $this->model->findByKode($data['kode_barang']);
+        // Jika kode berubah, atau tetap sama, kita cek apakah ada barang LAIN dengan kode ini DAN supplier ini
+        $existing = $this->model->findByKodeAndSupplier($data['kode_barang'], $data['supplier_id'] ?? null);
         if ($existing && $existing['id_barang'] != $id) {
-            $errors[] = "Kode Barang sudah ada.";
+            $errors[] = "Kode Barang '{$data['kode_barang']}' sudah digunakan barang lain dengan Supplier ini.";
         }
 
         if ($data['harga_jual'] < 0) $errors[] = "Harga Jual tidak boleh negatif.";
@@ -124,7 +176,7 @@ class BarangController {
         if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === UPLOAD_ERR_OK) {
             $upload = $this->uploadImage($_FILES['gambar']);
             if ($upload === false) {
-                $errors[] = "Gagal upload gambar. Pastikan format JPG/PNG dan ukuran < 2MB.";
+                $errors[] = "Gagal upload gambar. Pastikan format foto valid dan ukuran < 500KB.";
             } else {
                 // Delete old image
                 if ($gambar && file_exists(__DIR__ . '/../assets/uploads/products/' . $gambar)) {
@@ -155,11 +207,8 @@ class BarangController {
             $item = $this->model->findById($id);
             
             if ($this->model->delete($id)) {
-                // Delete image
-                if ($item['gambar'] && file_exists(__DIR__ . '/../assets/uploads/products/' . $item['gambar'])) {
-                    unlink(__DIR__ . '/../assets/uploads/products/' . $item['gambar']);
-                }
-                setFlashMessage('success', 'Barang berhasil dihapus.');
+                // Soft delete: Do not delete image file, just mark as inactive in DB.
+                setFlashMessage('success', 'Barang berhasil dihapus (diarsipkan).');
             } else {
                 setFlashMessage('error', 'Gagal menghapus barang.');
             }

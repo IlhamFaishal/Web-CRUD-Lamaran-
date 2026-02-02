@@ -53,7 +53,12 @@
                                 </span>
                             </div>
                             <div class="product-details">
-                                <h4 class="product-title" title="<?= $brg['nama_barang'] ?>"><?= $brg['nama_barang'] ?></h4>
+                                <h4 class="product-title" title="<?= $brg['nama_barang'] ?>">
+                                    <?= $brg['nama_barang'] ?>
+                                    <?php if (!empty($brg['nama_supplier'])): ?>
+                                        <br><small style="font-size: 0.7em; color: #555;">[<?= $brg['nama_supplier'] ?>]</small>
+                                    <?php endif; ?>
+                                </h4>
                                 <p class="product-price"><?= formatRupiah($brg['harga_jual']) ?></p>
                                 
                                 <?php if ($brg['stok'] > 0): ?>

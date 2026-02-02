@@ -14,9 +14,20 @@ $url = filter_var($url, FILTER_SANITIZE_URL);
 // [2] => Parameter (Misal: ID barang)
 $urlParts = explode('/', $url);
 
+// URL Mapping untuk kebab-case ke PascalCase
+$urlMappings = [
+    'kode-supplier' => 'KodeSupplier',
+    'master-kode-barang' => 'MasterKodeBarang'
+];
+
 // Tentukan nama Controller (Huruf depan besar + 'Controller')
 // Misal: barang -> BarangController
-$controllerName = ucfirst($urlParts[0]) . 'Controller';
+// Atau: kode-supplier -> KodeSupplierController
+if (isset($urlMappings[$urlParts[0]])) {
+    $controllerName = $urlMappings[$urlParts[0]] . 'Controller';
+} else {
+    $controllerName = ucfirst($urlParts[0]) . 'Controller';
+}
 
 // Tentukan nama Method/Fungsi. Defaultnya adalah 'index' jika tidak ada.
 $methodName = isset($urlParts[1]) ? $urlParts[1] : 'index';

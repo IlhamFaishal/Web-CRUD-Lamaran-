@@ -55,4 +55,43 @@ class LaporanModel {
         $stmt->execute();
         return $stmt->fetchAll();
     }
+    public function getProductSales($filterType, $filterValue) {
+        $sql = "SELECT b.kode_barang, b.nama_barang, SUM(d.qty) as total_qty, SUM(d.subtotal) as total_revenue
+                FROM transaksi_detail d
+                JOIN transaksi t ON d.transaksi_id = t.id_transaksi
+                JOIN barang b ON d.barang_id = b.id_barang
+                WHERE 1=1 ";
+
+        if ($filterType == 'harian') {
+            $sql .= "AND DATE(t.tanggal) = :val";
+        } elseif ($filterType == 'bulanan') {
+            $sql .= "AND DATE_FORMAT(t.tanggal, '%Y-%m') = :val";
+        } elseif ($filterType == 'tahunan') {
+            $sql .= "AND DATE_FORMAT(t.tanggal, '%Y') = :val";
+        }
+
+        $sql .= " GROUP BY d.barang_id, b.kode_barang, b.nama_barang
+                  ORDER BY total_revenue DESC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':val', $filterValue);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+    public function getSummary($filterType, $filterValue) {
+        $sql = "SELECT COUNT(*) as total_transaksi, SUM(total_harga) as total_omzet FROM transaksi WHERE 1=1 ";
+        
+        if ($filterType == 'harian') {
+            $sql .= "AND DATE(tanggal) = :val";
+        } elseif ($filterType == 'bulanan') {
+            $sql .= "AND DATE_FORMAT(tanggal, '%Y-%m') = :val";
+        } elseif ($filterType == 'tahunan') {
+            $sql .= "AND DATE_FORMAT(tanggal, '%Y') = :val";
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':val', $filterValue);
+        $stmt->execute();
+        return $stmt->fetch();
+    }
 }
